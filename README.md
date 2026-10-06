@@ -82,3 +82,4 @@ To build the installer yourself, you'll need [Inno Setup](https://jrsoftware.org
 ## License
 
 Licensed under the MIT License — see [`LICENSE`](LICENSE).
+
