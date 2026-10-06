@@ -1,0 +1,54 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache/options directory
+.vs/
+
+# User-specific files (this is where your local "Start external program"
+# debug-launch setting for SLDWORKS.exe lives -- personal to your machine,
+# never commit it)
+*.user
+*.suo
+
+# Visual Studio auto-generated files
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*.pidb
+*.svclog
+*.scc
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+
+# Inno Setup build output (the compiled installer .exe -- a release
+# artifact, not source; publish it via GitHub Releases instead)
+installer/Output/
+*.exe
+
+# COM registration/compiled type library artifacts, if ever generated locally
+*.tlb
+*.tlh
+
+# OS-generated files
+.DS_Store
+Thumbs.db
