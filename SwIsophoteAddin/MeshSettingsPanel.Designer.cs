@@ -125,9 +125,10 @@ namespace SwIsophoteAddin
             // 
             // meshToleranceLabel
             // 
+            this.meshToleranceLabel.AutoSize = true;
             this.meshToleranceLabel.Location = new System.Drawing.Point(8, 90);
             this.meshToleranceLabel.Name = "meshToleranceLabel";
-            this.meshToleranceLabel.Size = new System.Drawing.Size(105, 19);
+            this.meshToleranceLabel.Size = new System.Drawing.Size(84, 13);
             this.meshToleranceLabel.TabIndex = 2;
             this.meshToleranceLabel.Text = "Mesh Tolerance";
             this.meshToleranceLabel.Click += new System.EventHandler(this.meshToleranceLabel_Click_1);
@@ -163,9 +164,10 @@ namespace SwIsophoteAddin
             // 
             // chordAngleLabel
             // 
+            this.chordAngleLabel.AutoSize = true;
             this.chordAngleLabel.Location = new System.Drawing.Point(8, 114);
             this.chordAngleLabel.Name = "chordAngleLabel";
-            this.chordAngleLabel.Size = new System.Drawing.Size(105, 19);
+            this.chordAngleLabel.Size = new System.Drawing.Size(65, 13);
             this.chordAngleLabel.TabIndex = 21;
             this.chordAngleLabel.Text = "Chord Angle";
             // 
@@ -200,9 +202,10 @@ namespace SwIsophoteAddin
             // 
             // polygonCountLabel
             // 
+            this.polygonCountLabel.AutoSize = true;
             this.polygonCountLabel.Location = new System.Drawing.Point(8, 136);
             this.polygonCountLabel.Name = "polygonCountLabel";
-            this.polygonCountLabel.Size = new System.Drawing.Size(200, 16);
+            this.polygonCountLabel.Size = new System.Drawing.Size(94, 13);
             this.polygonCountLabel.TabIndex = 4;
             this.polygonCountLabel.Text = "Visible polygons: 0";
             // 
@@ -268,9 +271,10 @@ namespace SwIsophoteAddin
             // 
             // lineCountLabel
             // 
+            this.lineCountLabel.AutoSize = true;
             this.lineCountLabel.Location = new System.Drawing.Point(8, 282);
             this.lineCountLabel.Name = "lineCountLabel";
-            this.lineCountLabel.Size = new System.Drawing.Size(91, 22);
+            this.lineCountLabel.Size = new System.Drawing.Size(60, 13);
             this.lineCountLabel.TabIndex = 11;
             this.lineCountLabel.Text = "Line count:";
             // 
@@ -299,9 +303,10 @@ namespace SwIsophoteAddin
             // 
             // lineWidthLabel
             // 
+            this.lineWidthLabel.AutoSize = true;
             this.lineWidthLabel.Location = new System.Drawing.Point(8, 306);
             this.lineWidthLabel.Name = "lineWidthLabel";
-            this.lineWidthLabel.Size = new System.Drawing.Size(91, 22);
+            this.lineWidthLabel.Size = new System.Drawing.Size(58, 13);
             this.lineWidthLabel.TabIndex = 13;
             this.lineWidthLabel.Text = "Line width:";
             // 
@@ -365,9 +370,10 @@ namespace SwIsophoteAddin
             // 
             // normalLengthLabel
             // 
+            this.normalLengthLabel.AutoSize = true;
             this.normalLengthLabel.Location = new System.Drawing.Point(6, 492);
             this.normalLengthLabel.Name = "normalLengthLabel";
-            this.normalLengthLabel.Size = new System.Drawing.Size(105, 18);
+            this.normalLengthLabel.Size = new System.Drawing.Size(72, 13);
             this.normalLengthLabel.TabIndex = 20;
             this.normalLengthLabel.Text = "Normal length";
             this.normalLengthLabel.Click += new System.EventHandler(this.normalLengthLabel_Click);
@@ -422,9 +428,10 @@ namespace SwIsophoteAddin
             // 
             // densityLabel
             // 
+            this.densityLabel.AutoSize = true;
             this.densityLabel.Location = new System.Drawing.Point(8, 572);
             this.densityLabel.Name = "densityLabel";
-            this.densityLabel.Size = new System.Drawing.Size(60, 22);
+            this.densityLabel.Size = new System.Drawing.Size(45, 13);
             this.densityLabel.TabIndex = 25;
             this.densityLabel.Text = "Density:";
             // 
@@ -453,9 +460,10 @@ namespace SwIsophoteAddin
             // 
             // curvatureScaleLabel
             // 
+            this.curvatureScaleLabel.AutoSize = true;
             this.curvatureScaleLabel.Location = new System.Drawing.Point(8, 596);
             this.curvatureScaleLabel.Name = "curvatureScaleLabel";
-            this.curvatureScaleLabel.Size = new System.Drawing.Size(91, 22);
+            this.curvatureScaleLabel.Size = new System.Drawing.Size(37, 13);
             this.curvatureScaleLabel.TabIndex = 27;
             this.curvatureScaleLabel.Text = "Scale:";
             this.curvatureScaleLabel.Click += new System.EventHandler(this.curvatureScaleLabel_Click);
@@ -490,9 +498,10 @@ namespace SwIsophoteAddin
             // 
             // curvatureToleranceLabel
             // 
+            this.curvatureToleranceLabel.AutoSize = true;
             this.curvatureToleranceLabel.Location = new System.Drawing.Point(8, 620);
             this.curvatureToleranceLabel.Name = "curvatureToleranceLabel";
-            this.curvatureToleranceLabel.Size = new System.Drawing.Size(103, 22);
+            this.curvatureToleranceLabel.Size = new System.Drawing.Size(58, 13);
             this.curvatureToleranceLabel.TabIndex = 29;
             this.curvatureToleranceLabel.Text = "Tolerance:\r\n";
             // 
@@ -556,14 +565,15 @@ namespace SwIsophoteAddin
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(183, 13);
             this.label1.TabIndex = 33;
-            this.label1.Text = "Zebra | Isophote Analysis 1.0.1";
+            this.label1.Text = "Zebra | Isophote Analysis 1.0.2";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // edgeBlurLabel
             // 
+            this.edgeBlurLabel.AutoSize = true;
             this.edgeBlurLabel.Location = new System.Drawing.Point(8, 330);
             this.edgeBlurLabel.Name = "edgeBlurLabel";
-            this.edgeBlurLabel.Size = new System.Drawing.Size(91, 22);
+            this.edgeBlurLabel.Size = new System.Drawing.Size(55, 13);
             this.edgeBlurLabel.TabIndex = 15;
             this.edgeBlurLabel.Text = "Edge blur:";
             this.edgeBlurLabel.Click += new System.EventHandler(this.edgeBlurLabel_Click);
@@ -621,6 +631,8 @@ namespace SwIsophoteAddin
             // 
             // MeshSettingsPanel
             // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(199, 691);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -660,6 +672,7 @@ namespace SwIsophoteAddin
             this.Controls.Add(this.combToleranceInput);
             this.Controls.Add(this.testEdgeContinuityButton);
             this.Controls.Add(this.g2ResultLabel);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Location = new System.Drawing.Point(40, 40);
             this.Name = "MeshSettingsPanel";

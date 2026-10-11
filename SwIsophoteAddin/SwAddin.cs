@@ -1,6 +1,6 @@
 // Surface Analysis Extension
 // Andrew Jackson - AJ Design Studio LTD (https://ajdesignstudio.co.nz)
-// Version 1.0.1
+// Version 1.0.2
 
 
 using System;
@@ -185,18 +185,11 @@ namespace SwIsophoteAddin
                     },
                     onClosedByUserClicked: () =>
                     {
-                        // Closing via the window's own X button -- keep
-                        // AddinActive/OverlayEnabled/the toggle button's
-                        // pressed state in sync, the same as clicking
-                        // the toggle button itself to turn it off.
+                        // Closing via the window's own X button behaves
+                        // exactly like clicking the toggle button off:
+                        // every add-in graphic overlay is cleared.
                         AddinActive = false;
-                        OverlayEnabled = false;
-                        ClearG2Marker();
-                        ClearComb();
-                        ClearG2Callout();
-                        lastEdgeContinuityResult = null;
-                        settingsPanel?.SyncOverlayButtonStates();
-                        RequestOverlayRefresh();
+                        ClearAllAddinGraphics();
                     },
                     onShowIsocurvesForSelectedClicked: () =>
                     {
@@ -410,52 +403,49 @@ namespace SwIsophoteAddin
                     Debug.Print("Could not set panel owner to SW main window, showing unowned: " + ex);
                     settingsPanel.Show();
                 }
-
-                // Panel always opens with every overlay/analysis type
-                // OFF -- a clean slate rather than resuming whatever was
-                // active before, so the user explicitly opts into
-                // whichever analysis they want each time the panel is
-                // opened.
-                OverlayEnabled = false;
-                isolatedFacePersistRefs = null;
-                IsIsolating = false;
-                isocurveIsolatedFacePersistRefs = null;
-                IsIsocurveIsolating = false;
-                ClearIsocurveCallouts();
-                if (NormalsShown)
-                {
-                    ClearNormals();
-                    NormalsShown = false;
-                }
-                // G2 continuity comb/marker/callout were never included
-                // in this "clean slate" reset -- confirmed via [stated]:
-                // they'd linger on screen after closing/reopening the
-                // panel or toggling the add-in off, since the only other
-                // places these get cleared are at the start of a NEW G2
-                // test run and full add-in shutdown, neither of which
-                // fires here.
-                ClearG2Marker();
-                ClearComb();
-                ClearG2Callout();
-                lastEdgeContinuityResult = null;
-                settingsPanel?.SetG2ContinuityResult("No test run yet.");
-                settingsPanel?.SyncShowIsocurvesForSelectedButtonState();
-                settingsPanel?.SyncNormalsButtonState();
             }
             else
             {
                 settingsPanel?.Hide();
-                OverlayEnabled = false;
-                isocurveIsolatedFacePersistRefs = null;
-                IsIsocurveIsolating = false;
-                ClearIsocurveCallouts();
-                ClearG2Marker();
-                ClearComb();
-                ClearG2Callout();
-                lastEdgeContinuityResult = null;
             }
 
+            // Opening gives a clean slate (the user explicitly opts into
+            // whichever analysis they want each time); closing leaves
+            // nothing behind in the viewport. Same reset either way.
+            ClearAllAddinGraphics();
+        }
+
+        // Single place that clears every add-in graphic overlay --
+        // zebra/isophote overlay and its face isolation, isocurves and
+        // their degree/CV callouts, surface normals, and the G2
+        // marker/comb/callout. Called when the panel opens, when it is
+        // closed via the toolbar toggle, and when it is closed via its
+        // own X button, so all three behave identically.
+        private void ClearAllAddinGraphics()
+        {
+            OverlayEnabled = false;
+            isolatedFacePersistRefs = null;
+            IsIsolating = false;
+
+            isocurveIsolatedFacePersistRefs = null;
+            IsIsocurveIsolating = false;
+            ClearIsocurveCallouts();
+
+            if (NormalsShown)
+            {
+                ClearNormals();
+                NormalsShown = false;
+            }
+
+            ClearG2Marker();
+            ClearComb();
+            ClearG2Callout();
+            lastEdgeContinuityResult = null;
+
+            settingsPanel?.SetG2ContinuityResult("No test run yet.");
             settingsPanel?.SyncOverlayButtonStates();
+            settingsPanel?.SyncShowIsocurvesForSelectedButtonState();
+            settingsPanel?.SyncNormalsButtonState();
             RequestOverlayRefresh();
         }
 
@@ -844,7 +834,14 @@ namespace SwIsophoteAddin
 
         private readonly Dictionary<ulong, float[]> bodyMeshCache = new Dictionary<ulong, float[]>();
         private readonly Dictionary<ulong, float[]> bodyEdgeCache = new Dictionary<ulong, float[]>();
-        private readonly Dictionary<ulong, float[]> bodyIsocurveCache = new Dictionary<ulong, float[]>();
+        private readonly Dictionary<ulong, (float[] alongU, float[] alongV)> bodyIsocurveCache =
+            new Dictionary<ulong, (float[] alongU, float[] alongV)>();
+
+        // isocurveBuffer holds the U-running segments first, then the
+        // V-running ones, so DrawIsocurves can colour each family
+        // separately (red = runs along U, green = runs along V) out of
+        // the one buffer.
+        private int isocurveAlongUVertexCount = 0;
 
         // Cheap pre-tessellation shortcut, gating the actual expensive
         // AppendBodyTessellation call itself -- not to be confused with
@@ -1479,7 +1476,8 @@ namespace SwIsophoteAddin
                     allBodies.AddRange(sheetArr);
             }
 
-            var isoLines = new List<float>();
+            var isoLinesAlongU = new List<float>();
+            var isoLinesAlongV = new List<float>();
 
             foreach (object b in allBodies)
             {
@@ -1505,16 +1503,23 @@ namespace SwIsophoteAddin
                     bodyFingerprint = CombineFingerprints(bodyFingerprint, ComputeStateSignature(faceFilter));
                 }
 
-                if (bodyIsocurveCache.TryGetValue(bodyFingerprint, out float[] cachedIso))
+                if (bodyIsocurveCache.TryGetValue(bodyFingerprint, out var cachedIso))
                 {
-                    isoLines.AddRange(cachedIso);
+                    isoLinesAlongU.AddRange(cachedIso.alongU);
+                    isoLinesAlongV.AddRange(cachedIso.alongV);
                     continue;
                 }
 
-                float[] bodyIso = ExtractBodyIsocurves(body, isolating ? isoFaceIds : null);
+                var bodyIso = ExtractBodyIsocurves(body, isolating ? isoFaceIds : null);
                 bodyIsocurveCache[bodyFingerprint] = bodyIso;
-                isoLines.AddRange(bodyIso);
+                isoLinesAlongU.AddRange(bodyIso.alongU);
+                isoLinesAlongV.AddRange(bodyIso.alongV);
             }
+
+            isocurveAlongUVertexCount = isoLinesAlongU.Count / 3;
+            var isoLines = new List<float>(isoLinesAlongU.Count + isoLinesAlongV.Count);
+            isoLines.AddRange(isoLinesAlongU);
+            isoLines.AddRange(isoLinesAlongV);
 
             isocurveBuffer?.Dispose();
             isocurveBuffer = isoLines.Count > 0 ? new LineBuffer(isoLines.ToArray()) : null;
@@ -1522,24 +1527,25 @@ namespace SwIsophoteAddin
                 (isolating ? " [ISOLATED: " + isoFaceIds.Count + " face(s)]" : ""));
         }
 
-        private float[] ExtractBodyIsocurves(IBody2 body, HashSet<IntPtr> faceFilter = null)
+        private (float[] alongU, float[] alongV) ExtractBodyIsocurves(IBody2 body, HashSet<IntPtr> faceFilter = null)
         {
-            var linePoints = new List<float>();
+            var alongU = new List<float>();
+            var alongV = new List<float>();
 
             object[] faces = (object[])body.GetFaces();
-            if (faces == null) return linePoints.ToArray();
+            if (faces == null) return (alongU.ToArray(), alongV.ToArray());
 
             foreach (object fObj in faces)
             {
                 var face = (Face2)fObj;
                 if (faceFilter != null && !faceFilter.Contains(GetComIdentity(face))) continue;
-                AppendFaceIsocurves(face, linePoints);
+                AppendFaceIsocurves(face, alongU, alongV);
             }
 
-            return linePoints.ToArray();
+            return (alongU.ToArray(), alongV.ToArray());
         }
 
-        private void AppendFaceIsocurves(Face2 face, List<float> linePoints)
+        private void AppendFaceIsocurves(Face2 face, List<float> alongU, List<float> alongV)
         {
             var surf = (Surface)face.GetSurface();
             if (surf == null) return;
@@ -1569,8 +1575,14 @@ namespace SwIsophoteAddin
             var vKnots = DedupeKnots(rawVKnots);
             Debug.Print("Isocurve face: unique U=" + uKnots.Count + " unique V=" + vKnots.Count);
 
-            foreach (double u in uKnots) AppendIsocurveLine(surf, face, false, u, linePoints);
-            foreach (double v in vKnots) AppendIsocurveLine(surf, face, true, v, linePoints);
+            // Colour is by which knot vector the curve sits on, so the
+            // NUMBER of lines of a colour tracks that direction's CV
+            // count in the callout: the curves at the U knots are the
+            // "U (red)" family, the curves at the V knots are "V (green)".
+            // (Each one physically runs in the other direction.) The
+            // list names alongU/alongV are just "red"/"green" here.
+            foreach (double u in uKnots) AppendIsocurveLine(surf, face, false, u, alongU);
+            foreach (double v in vKnots) AppendIsocurveLine(surf, face, true, v, alongV);
         }
 
         private static List<double> DedupeKnots(double[] knots)
@@ -1697,11 +1709,11 @@ namespace SwIsophoteAddin
                     continue;
                 }
 
-                callout.Label2[0] = "U";
+                callout.Label2[0] = "U (red)";
                 callout.Value[0] = "Degree " + uDegree + ", CVs " + uCvCount;
                 callout.ValueInactive[0] = true;
 
-                callout.Label2[1] = "V";
+                callout.Label2[1] = "V (green)";
                 callout.Value[1] = "Degree " + vDegree + ", CVs " + vCvCount;
                 callout.ValueInactive[1] = true;
 
@@ -2954,10 +2966,19 @@ namespace SwIsophoteAddin
             GL.GetDoublev(GL.GL_DEPTH_RANGE, prevDepthRange);
             GL.DepthRange(0.0, 0.9999);
 
-            GL.Color3f(0.0f, 0.0f, 0.0f);
-            isocurveBuffer.Draw();
+            double[] prevLineWidth = new double[1];
+            GL.GetDoublev(0x0B21, prevLineWidth); // GL_LINE_WIDTH
+            GL.LineWidth(2.0f);
+
+            GL.Color3f(0.0f, 0.7f, 0.0f); // green
+            isocurveBuffer.DrawRange(0, isocurveAlongUVertexCount);
+
+            GL.Color3f(0.9f, 0.0f, 0.0f); // red
+            isocurveBuffer.DrawRange(isocurveAlongUVertexCount, isocurveBuffer.VertexCount - isocurveAlongUVertexCount);
 
             CheckGLError("DrawIsocurves after isocurveBuffer.Draw()");
+
+            GL.LineWidth((float)prevLineWidth[0]);
 
             GL.DepthRange(prevDepthRange[0], prevDepthRange[1]);
             if (prevProgram == 0 || GL.IsProgram((uint)prevProgram))
@@ -3437,6 +3458,8 @@ void main()
 
         public bool IsValid => GL.IsBuffer(vbo);
 
+        public int VertexCount => vertexCount;
+
         public LineBuffer(float[] positionData)
         {
             vertexCount = positionData.Length / 3;
@@ -3455,6 +3478,24 @@ void main()
             GL.EnableClientState(GL.GL_VERTEX_ARRAY);
 
             GL.DrawArrays(GL.GL_LINES, 0, vertexCount);
+
+            GL.DisableClientState(GL.GL_VERTEX_ARRAY);
+
+            GL.BindBuffer(GL.GL_ARRAY_BUFFER, 0);
+        }
+
+        // Draws a sub-range of the buffer's vertices, so one buffer can
+        // be drawn in several colours.
+        public void DrawRange(int first, int count)
+        {
+            if (count <= 0) return;
+
+            GL.BindBuffer(GL.GL_ARRAY_BUFFER, vbo);
+
+            GL.VertexPointer(3, GL.GL_FLOAT, Stride, IntPtr.Zero);
+            GL.EnableClientState(GL.GL_VERTEX_ARRAY);
+
+            GL.DrawArrays(GL.GL_LINES, first, count);
 
             GL.DisableClientState(GL.GL_VERTEX_ARRAY);
 

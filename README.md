@@ -1,6 +1,6 @@
 # Surface Analysis Extension
 
-**Version 1.0.1**
+**Version 1.0.2**
 
 A SOLIDWORKS add-in that extends SOLIDWORKS' built-in surface analysis tools with:
 
@@ -15,6 +15,13 @@ Everything is toggled from a single button added to the SOLIDWORKS CommandManage
 Built by Andrew Jackson — [AJ Design Studio LTD](https://ajdesignstudio.co.nz).
 
 This software is provided free of charge, with no warranty of any kind.
+
+## Changes since V1.0.1
+
+- Made isocurves thicker, now 2 pixels wide
+- Coloured isocurves to match UV direction. Also referenced in the callout
+- Fixed - isocurves would not clear upon closure of the dialog box
+- Fixed - dialog box was not working with Windows scaling
 
 ## Changes since v1.0.0
 
